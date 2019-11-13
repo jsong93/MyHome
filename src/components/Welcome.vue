@@ -11,7 +11,7 @@
           <router-link to="/home" class="site-header-nav-item">Home</router-link>
           <router-link to="/blog" class="site-header-nav-item">Blog</router-link>
           <router-link to="/home" class="site-header-nav-item">Open-source</router-link>
-          <router-link to="/home" class="site-header-nav-item">Game</router-link>
+          <router-link to="/game" class="site-header-nav-item">Game</router-link>
           <router-link to="/home" class="site-header-nav-item">About</router-link>
         </nav>
       </div>
