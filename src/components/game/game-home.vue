@@ -15,43 +15,62 @@ import * as d3 from "d3";
 export default {
   data() {
     return {
-      level: 0
+      level: 0,
+      grid: [
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      ]
     };
   },
   created() {},
   mounted() {
-    const data = [
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
-        [0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
-        [0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
-        [0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
-        [0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
-        [0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
-        [0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
-        [0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
-        [0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
-        [0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
-        [0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
-        [0, 1, 1, 0, 1, 0, 1, 1, 0, 1]
-      ],
-      tetris_tr = d3
-        .select(".game-dashboard")
-        .append("div")
-        .selectAll("div")
-        .data(data.splice(4))
-        .enter()
-        .append("div");
+    this.newTetris();
+    // const data = [
+    //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    //     [0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
+    //     [0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
+    //     [0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
+    //     [0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
+    //     [0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
+    //     [0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
+    //     [0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
+    //     [0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
+    //     [0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
+    //     [0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
+    //     [0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
+    //     [0, 1, 1, 0, 1, 0, 1, 1, 0, 1]
+    //   ],
+    const tetris_tr = d3
+      .select(".game-dashboard")
+      .append("div")
+      .selectAll("div")
+      .data(this.grid.splice(3))
+      .enter()
+      .append("div");
     tetris_tr
       .selectAll("div")
       .data(d => d)
       .enter()
       .append("div")
-      .style("width", "30px")
-      .style("height", "30px")
+      .style("width", "1rem")
+      .style("height", "1rem")
       .style("background-color", d => {
         return d > 0 ? "steelblue" : "#fff";
       });
@@ -73,16 +92,31 @@ export default {
   destroyed() {},
   methods: {
     newTetris() {
-      Math.round(Math.random());
+      switch (Math.round(Math.random())) {
+        case 0:
+          this.grid[3][4] = 1;
+          break;
+        case 1:
+          this.grid[3][4] = 1;
+          this.grid[3][5] = 1;
+          break;
+        default:
+          break;
+      }
+    },
+    move() {
+      for (let i = 3; i < this.grid.length; i++) {
+        // todo
+      }
     }
   }
 };
 </script>
- 
+
 <style>
 .game-content {
   margin: 0 auto;
-  width: 500px;
+  width: 25rem;
   padding-top: 4.5rem;
 }
 .game-table {
@@ -91,7 +125,7 @@ export default {
   grid-template-rows: 1fr 5fr;
   border: 1px solid #ccc;
   border-radius: 10px;
-  box-shadow: 10px 10px 8px #aaa;
+  box-shadow: 10px 10px 8px #aaa, -10px 10px 8px #aaa;
   grid-template-areas:
     "head ."
     "dashboard panel";
@@ -110,7 +144,7 @@ export default {
   grid-area: dashboard;
 }
 .game-dashboard {
-  width: 500px;
+  width: 25rem;
 }
 .game-dashboard div {
   line-height: 0;
