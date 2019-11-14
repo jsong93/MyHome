@@ -15,12 +15,19 @@ import * as d3 from "d3";
 export default {
   data() {
     return {
+      tetris_tr: null,
       level: 0,
+      newBlock: [
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      ],
       grid: [
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        // [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        // [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        // [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        // [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -39,41 +46,44 @@ export default {
   created() {},
   mounted() {
     this.newTetris();
-    // const data = [
-    //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    //     [0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
-    //     [0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
-    //     [0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
-    //     [0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
-    //     [0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
-    //     [0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
-    //     [0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
-    //     [0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
-    //     [0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
-    //     [0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
-    //     [0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
-    //     [0, 1, 1, 0, 1, 0, 1, 1, 0, 1]
-    //   ],
-    const tetris_tr = d3
+    this.tetris_tr = d3
       .select(".game-dashboard")
-      .append("div")
+      // .append("div")
       .selectAll("div")
-      .data(this.grid.splice(3))
+      .data(this.newBlock.concat(this.grid))
       .enter()
-      .append("div");
-    tetris_tr
+      .append("div")
+      .classed("game-dashboard-tr", true)
       .selectAll("div")
       .data(d => d)
       .enter()
       .append("div")
+      .classed("game-dashboard-td", true)
       .style("width", "1rem")
       .style("height", "1rem")
       .style("background-color", d => {
         return d > 0 ? "steelblue" : "#fff";
       });
+    // .text(d => d);
+
+    // const data = [[1, 2], [3, 4]];
+    // d3.selectAll("p")
+    //   // .append("div")
+    //   // .selectAll("div")
+    //   .data(data)
+    //   .enter()
+    //   .append("p")
+    //   .classed("a", true)
+    //   .selectAll("div")
+    //   .data(d => d)
+    //   .enter()
+    //   .append("div")
+    //   .classed("b", true)
+    //   .text(d => d);
+    setInterval(() => {
+      this.newTetris();
+      this.draw();
+    }, 1000);
     // d3.select(".game-dashboard")
     //   .selectAll("div")
     //   .data(data)
@@ -91,23 +101,84 @@ export default {
   },
   destroyed() {},
   methods: {
+    // 生成新方块
     newTetris() {
-      switch (Math.round(Math.random())) {
-        case 0:
-          this.grid[3][4] = 1;
-          break;
-        case 1:
-          this.grid[3][4] = 1;
-          this.grid[3][5] = 1;
-          break;
-        default:
-          break;
+      let a = 3;
+      let i = 3,
+        j = 4;
+      this.newBlock = [
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      ];
+      this.newBlock[i][j] = 1;
+      // 一行一行画 判断位置 凸画的不好 从底下向上画
+      while (a > 0) {
+        switch (Math.round(Math.random())) {
+          // 同行
+          case 0:
+            // 一行大于两个
+            if (this.newBlock[i][j + 1] + this.newBlock[i][j - 1] > 0) {
+              if (a < 2) {
+                if (this.newBlock[i][j + 1] + this.newBlock[i][j - 1] > 1) {
+                  this.newBlock[i][
+                    this.newBlock[i][j - 1] > 0 ? j - 2 : ++j
+                  ] = 1;
+                } else {
+                  // this.newBlock[--i][
+                  //   this.newBlock[i][j - 1] > 0 ? j - 2 : ++j
+                  // ] = 1;
+                  this.newBlock[i][j - 1] > 0
+                    ? (this.newBlock[--i][--j] = 1)
+                    : (this.this.newBlock[i][++j] = 1);
+                }
+              } else {
+                this.newBlock[i][this.newBlock[i][j - 1] > 0 ? ++j : --j] = 1;
+              }
+            } else {
+              switch (Math.round(Math.random())) {
+                case 0:
+                  this.newBlock[i][++j] = 1;
+                  break;
+                case 1:
+                  this.newBlock[i][--j] = 1;
+                  break;
+                default:
+                  this.newBlock[i][++j] = 1;
+                  break;
+              }
+            }
+            break;
+          // 换行
+          case 1:
+            this.newBlock[--i][j] = 1;
+            break;
+          default:
+            this.newBlock[--i][j] = 1;
+            break;
+        }
+        a--;
       }
     },
     move() {
-      for (let i = 3; i < this.grid.length; i++) {
-        // todo
-      }
+      // for (let i = 3; i < this.grid.length; i++) {
+      //   if (i + 1 < this.grid.length) {
+      //     for (let j = 0; j < this.grid[i].length; j++) {
+      //       if (this.grid[i][j] + this.grid[i + 1][j] > 1) {
+      //       }
+      //     }
+      //   }
+      // }
+    },
+    draw() {
+      d3.selectAll(".game-dashboard-tr")
+        .data(this.newBlock)
+        .selectAll(".game-dashboard-td")
+        .data(d => d)
+        .style("background-color", d => {
+          return d > 0 ? "steelblue" : "#fff";
+        });
     }
   }
 };
@@ -149,7 +220,7 @@ export default {
 .game-dashboard div {
   line-height: 0;
 }
-.game-dashboard div div div {
+.game-dashboard div div {
   font: 10px sans-serif;
   display: inline-block;
   background-color: steelblue;
