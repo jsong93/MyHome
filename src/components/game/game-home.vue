@@ -83,6 +83,7 @@ export default {
     setInterval(() => {
       this.newTetris();
       this.draw();
+      this.move();
     }, 1000);
     // d3.select(".game-dashboard")
     //   .selectAll("div")
@@ -131,7 +132,7 @@ export default {
                   // ] = 1;
                   this.newBlock[i][j - 1] > 0
                     ? (this.newBlock[--i][--j] = 1)
-                    : (this.this.newBlock[i][++j] = 1);
+                    : (this.newBlock[i][++j] = 1);
                 }
               } else {
                 this.newBlock[i][this.newBlock[i][j - 1] > 0 ? ++j : --j] = 1;
@@ -162,6 +163,15 @@ export default {
       }
     },
     move() {
+      let i = 0;
+      for (const tr of this.newBlock) {
+        const trB = tr.join(""),
+          trD = trB * 1;
+        // TODO 二进制判断
+        if ((trD ^ trD) >= (tr.join("") | this.grid[i].join(""))) {
+          //  console.log(1);
+        }
+      }
       // for (let i = 3; i < this.grid.length; i++) {
       //   if (i + 1 < this.grid.length) {
       //     for (let j = 0; j < this.grid[i].length; j++) {
