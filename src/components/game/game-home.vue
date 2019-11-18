@@ -82,8 +82,8 @@ export default {
     //   .text(d => d);
     setInterval(() => {
       this.newTetris();
+      // this.move();
       this.draw();
-      this.move();
     }, 1000);
     // d3.select(".game-dashboard")
     //   .selectAll("div")
@@ -104,9 +104,11 @@ export default {
   methods: {
     // 生成新方块
     newTetris() {
-      let a = 3;
-      let i = 3,
-        j = 4;
+      let a = 3,
+        i = 3,
+        j = 4,
+        m = 0,
+        n = 0;
       this.newBlock = [
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -121,22 +123,34 @@ export default {
           case 0:
             // 一行大于两个
             if (this.newBlock[i][j + 1] + this.newBlock[i][j - 1] > 0) {
-              if (a < 2) {
-                if (this.newBlock[i][j + 1] + this.newBlock[i][j - 1] > 1) {
-                  this.newBlock[i][
-                    this.newBlock[i][j - 1] > 0 ? j - 2 : ++j
-                  ] = 1;
-                } else {
-                  // this.newBlock[--i][
-                  //   this.newBlock[i][j - 1] > 0 ? j - 2 : ++j
-                  // ] = 1;
-                  this.newBlock[i][j - 1] > 0
-                    ? (this.newBlock[--i][--j] = 1)
-                    : (this.newBlock[i][++j] = 1);
-                }
-              } else {
+              //   if (a < 2) {
+              //     if (this.newBlock[i][j + 1] + this.newBlock[i][j - 1] > 1) {
+              //       this.newBlock[i][
+              //         this.newBlock[i][j - 1] > 0 ? j - 2 : ++j
+              //       ] = 1;
+              //     } else {
+              //       // this.newBlock[--i][
+              //       //   this.newBlock[i][j - 1] > 0 ? j - 2 : ++j
+              //       // ] = 1;
+              //       this.newBlock[i][j - 1] > 0
+              //         ? (this.newBlock[--i][--j] = 1)
+              //         : (this.newBlock[i][++j] = 1);
+              //     }
+              //   } else {
+              if (m < 2) {
                 this.newBlock[i][this.newBlock[i][j - 1] > 0 ? ++j : --j] = 1;
+              } else {
+                this.newBlock[--i][this.newBlock[i][j - 1] > 0 ? --j : ++j] = 1;
               }
+              // if (this.newBlock[i][j - 1] > 0) {
+              //   debugger
+              //   j -= 2;
+              // } else {
+              //   debugger
+              //   j += 2;
+              // }
+              // this.newBlock[i][j] = 1;
+              // }
             } else {
               switch (Math.round(Math.random())) {
                 case 0:
@@ -150,28 +164,47 @@ export default {
                   break;
               }
             }
+            m++;
+            console.log(m);
             break;
           // 换行
           case 1:
-            this.newBlock[--i][j] = 1;
+            if (n < 2) {
+              this.newBlock[--i][j] = 1;
+            } else {
+              this.newBlock[--i][++j] = 1;
+            }
+            n++;
             break;
           default:
-            this.newBlock[--i][j] = 1;
+            if (n < 2) {
+              this.newBlock[--i][j] = 1;
+            } else {
+              this.newBlock[++i][++j] = 1;
+            }
+            n++;
             break;
         }
         a--;
       }
+      console.log(m, n);
     },
     move() {
-      let i = 0;
-      for (const tr of this.newBlock) {
-        const trB = tr.join(""),
-          trD = trB * 1;
-        // TODO 二进制判断
-        if ((trD ^ trD) >= (tr.join("") | this.grid[i].join(""))) {
-          //  console.log(1);
-        }
-      }
+      // let i = 0;
+      // while (i < 10) {
+      //   for (let j = 3; j > 0; j--) {
+      //     for (let m = 0; m < 10; m++) {
+      //       if (this.newBlock[j][m] + this.grid[i][m] > 1) {
+      //         break;
+      //       }
+      //       if (m > 8) {
+      //         this.grid[i] = this.newBlock[j];
+      //         break;
+      //       }
+      //     }
+      //   }
+      //   i++;
+      // }
       // for (let i = 3; i < this.grid.length; i++) {
       //   if (i + 1 < this.grid.length) {
       //     for (let j = 0; j < this.grid[i].length; j++) {
@@ -183,7 +216,8 @@ export default {
     },
     draw() {
       d3.selectAll(".game-dashboard-tr")
-        .data(this.newBlock)
+        // .data(this.newBlock)
+        .data(this.newBlock.concat(this.grid))
         .selectAll(".game-dashboard-td")
         .data(d => d)
         .style("background-color", d => {
