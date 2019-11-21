@@ -1,66 +1,102 @@
 <template>
-  <div>
-    <div><canvas id="canvas" height="600"></canvas></div>
-    <div><canvas id="canvas1"></canvas></div>
-  </div>
+  <div><canvas id="canvas"></canvas></div>
 </template>
 
 <script>
 import G3D from "g3d";
+import dat from "dat.gui";
 export default {
   data() {
-    return {
-      engine: null
-    };
+    return {};
   },
   created() {},
   mounted() {
-    document.body.onload = () => {
-      this.init();
-    };
+    this.init();
   },
   methods: {
     init() {
-      const canvas = document.getElementById("canvas"),
-        clientWidth = document.documentElement.clientWidth,
-        clientHeight = document.documentElement.clientHeight;
-      // 该 Window 属性 devicePixelRatio 能够返回当前显示设备的物理像素分辨率与 CSS 像素分辨率的比率
+      const canvas = document.getElementById("canvas");
+      const clientWidth = document.documentElement.clientWidth;
+      const clientHeight = document.documentElement.clientHeight;
       canvas.width = clientWidth * devicePixelRatio;
       canvas.height = clientHeight * devicePixelRatio;
       canvas.style.width = clientWidth + "px";
-      canvas.style.height = clientHeight + "px";
+      canvas.style.height = clientHeight - 5 + "px";
       const scene = this.main(canvas);
-
       this.controlRotateCamera(
         canvas,
         G3D.Engine.instance.currentScene.activeCamera
       );
     },
     main(canvas) {
-      // 引擎
-      this.engine = this.engine ? this.engine : new G3D.Engine(canvas);
-      // 场景
-      const scene = new G3D.Scene(this.engine),
-        //透视相机
+      const engine = new G3D.Engine(canvas),
+        scene = new G3D.Scene(engine),
         camera = new G3D.RotatePerspectiveCamera(scene);
-
-      camera.alpha = 45;
+      camera.alpha = 30;
       camera.beta = 30;
-      camera.redius = 20;
-
-      // 平行光
+      camera.radius = 15;
       const light1 = new G3D.DirectionalLight(scene);
-      // 颜色
-      light1.color = { r: 255, g: 200, b: 200 };
-      // 方向
-      light1.direction = { x: 1, y: 0, z: 1 };
-      // 亮度
-      light1.intensity = 0.8;
-      // 通过不同方式创建各种网格体的工厂函数集合 每一个方法返回一个创建好的网格体 scene ,x,y
-      const m1 = G3D.MeshBuilder.createPlane(scene, 60, 4);
-      m1.position.z = -4;
-      const m2 = G3D.MeshBuilder.createSphere(scene, 1);
-      m2.position.z = 4;
+      light1.direction = { x: 1, y: 2, z: 3 };
+      // 强度
+      light1.intensity = 0.5;
+      // 环境光
+      const light2 = new G3D.AmbientLight(scene);
+      light2.intensity = 0.5;
+      // 坐标轴形状的线状网络体 场景，长度
+      const coord = G3D.MeshBuilder.createCoordinate(scene, 10);
+
+      const vertices = [
+        0,
+        1,
+        2, // A
+        0,
+        0,
+        2, // B
+        1,
+        1,
+        2, // C
+        1,
+        0,
+        2, // D
+        1,
+        1,
+        2, // E
+        1,
+        0,
+        2, // F
+        1,
+        1,
+        0, // G
+        1,
+        0,
+        0 // H
+      ];
+      const normals = [];
+      const uvs = [];
+      for (let i = 0; i < 8; i++) {
+        if (i <= 3) {
+          normals.push(0, 0, 1);
+        } else {
+          normals.push(1, 0, 0);
+        }
+        uvs.push(200, 2220);
+      }
+      const indices = [0, 1, 2, 1, 3, 2, 4, 5, 7, 7, 6, 4];
+
+      const mesh = new G3D.Mesh(scene);
+    // const mesh = G3D.MeshBuilder.createPlane(scene);
+      mesh.geometry = new G3D.Geometry({
+        vertices,
+        normals,
+        uvs,
+        indices: {
+          default: indices
+        }
+        ,
+        // 两面
+        facing:G3D.Geometry.FACING.BOTH
+      });
+
       function render() {
         scene.render();
         requestAnimationFrame(render);
@@ -112,7 +148,7 @@ export default {
       canvas.addEventListener("touchmove", function(e) {
         move(e.touches[0].screenX, e.touches[0].screenY);
       });
-    },
+    }
   }
 };
 </script>

@@ -1,8 +1,5 @@
 <template>
-  <div>
-    <div><canvas id="canvas" height="600"></canvas></div>
-    <div><canvas id="canvas1"></canvas></div>
-  </div>
+  <div><canvas id="canvas"></canvas></div>
 </template>
 
 <script>
@@ -30,7 +27,6 @@ export default {
       canvas.style.width = clientWidth + "px";
       canvas.style.height = clientHeight + "px";
       const scene = this.main(canvas);
-
       this.controlRotateCamera(
         canvas,
         G3D.Engine.instance.currentScene.activeCamera
@@ -43,11 +39,9 @@ export default {
       const scene = new G3D.Scene(this.engine),
         //透视相机
         camera = new G3D.RotatePerspectiveCamera(scene);
-
       camera.alpha = 45;
       camera.beta = 30;
       camera.redius = 20;
-
       // 平行光
       const light1 = new G3D.DirectionalLight(scene);
       // 颜色
@@ -112,7 +106,7 @@ export default {
       canvas.addEventListener("touchmove", function(e) {
         move(e.touches[0].screenX, e.touches[0].screenY);
       });
-    },
+    }
   }
 };
 </script>
