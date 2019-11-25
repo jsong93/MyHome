@@ -1,5 +1,5 @@
 <template>
-  <g3d7></g3d7>
+  <three2></three2>
 </template>
 
 <script>
@@ -11,6 +11,8 @@ import g3d4 from "@/components/g3d/Coordinate2";
 import g3d5 from "@/components/g3d/buffer";
 import g3d6 from "@/components/g3d/mesh";
 import g3d7 from "@/components/g3d/cube";
+import three from "@/components/three/rotation"
+import three2 from "@/components/three/rotation2"
 export default {
   components: {
     g3d1,
@@ -19,7 +21,9 @@ export default {
     g3d4,
     g3d5,
     g3d6,
-    g3d7
+    g3d7,
+    three,
+    three2
   }
   // data() {
   //   return {

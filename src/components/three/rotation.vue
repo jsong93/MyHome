@@ -1,10 +1,22 @@
 <template>
-  <div></div>
+  <div>
+    <div id="container"></div>
+    <div id="menu">
+      <button id="table">TABLE</button>
+      <button id="sphere">SPHERE</button>
+      <button id="helix">HELIX</button>
+      <button id="grid">GRID</button>
+    </div>
+  </div>
 </template>
 
 <script>
-import THREE from "three.js";
+import * as THREE from "three/build/three.module.js";
+// import THREE from "three.module.js";
 import TWEEN from "tween.js";
+// import { CSS3DObject, CSS3DRenderer } from "three-css3drenderer";
+import { CSS3DObject, CSS3DRenderer } from "@/libs/CSS3DRenderer";
+// import TrackballControls from "three-trackballcontrols";
 export default {
   data() {
     return {
@@ -609,10 +621,14 @@ export default {
     };
   },
   created() {},
-  mounted() {},
+  mounted() {
+    this.init();
+    this.animate();
+  },
   destroyed() {},
   methods: {
     init() {
+      const _this = this;
       this.scene = new THREE.Scene();
       this.camera = new THREE.PerspectiveCamera(
         40,
@@ -620,7 +636,8 @@ export default {
         1,
         10000
       );
-      camera.position.z = 3000;
+      // this.camera.position.x = 1000;
+      this.camera.position.z = 3000;
       // table
       for (var i = 0; i < this.table.length; i += 5) {
         const element = document.createElement("div");
@@ -633,23 +650,25 @@ export default {
         element.appendChild(number);
         const symbol = document.createElement("div");
         symbol.className = "symbol";
-        symbol.textContent = table[i];
+        symbol.textContent = this.table[i];
         element.appendChild(symbol);
         const details = document.createElement("div");
         details.className = "details";
-        details.innerHTML = table[i + 1] + "<br>" + table[i + 2];
+        details.innerHTML = this.table[i + 1] + "<br>" + this.table[i + 2];
         element.appendChild(details);
-        let object = new THREE.CSS3DObject(element);
+        let object = new CSS3DObject(element);
         object.position.x = Math.random() * 4000 - 2000;
         object.position.y = Math.random() * 4000 - 2000;
         object.position.z = Math.random() * 4000 - 2000;
-        scene.add(object);
-        objects.push(object);
+        this.scene.add(object);
+        this.objects.push(object);
         // 3d 对象 容器
-        let object = new THREE.Object3D();
-        object.position.x = table[i + 3] * 140 - 1330;
-        object.position.y = -(table[i + 4] * 180) + 990;
-        this.targets.table.push(object);
+        let object2 = new THREE.Object3D();
+        // let object2 = new CSS3DObject(element);
+        object2.position.x = this.table[i + 3] * 140 - 1330;
+        object2.position.y = -(this.table[i + 4] * 180) + 990;
+        // object2.position.z = -3000;
+        this.targets.table.push(object2);
       }
       // sphere球体  vector矢量
       let vector = new THREE.Vector3();
@@ -657,6 +676,8 @@ export default {
         const phi = Math.acos(-1 + (2 * i) / l),
           theta = Math.sqrt(l * Math.PI) * phi,
           object = new THREE.Object3D();
+        // 球
+        // this.setFromSphericalCoords.call(object.position, 800, phi, theta);
         object.position.setFromSphericalCoords(800, phi, theta);
         // multiplyScalar Multiplies this vector by scalar s. 乘法 *2
         vector.copy(object.position).multiplyScalar(2);
@@ -671,19 +692,21 @@ This method does not support objects having non-uniformly-scaled parent(s). */
         object.lookAt(vector);
         this.targets.sphere.push(object);
       }
-      // helix螺旋 
-      var vector = new THREE.Vector3();
+      // helix螺旋
+      var vector2 = new THREE.Vector3();
       for (var i = 0, l = this.objects.length; i < l; i++) {
         var theta = i * 0.175 + Math.PI;
         var y = -(i * 8) + 450;
+        // var y = 450;
         var object = new THREE.Object3D();
         // Cylindrical圆柱
+        // this.setFromCylindricalCoords.call(object.position, 900, theta, y);
         object.position.setFromCylindricalCoords(900, theta, y);
-        vector.x = object.position.x * 2;
-        vector.y = object.position.y;
-        vector.z = object.position.z * 2;
-        object.lookAt(vector);
-        targets.helix.push(object);
+        vector2.x = object.position.x * 2;
+        vector2.y = object.position.y;
+        vector2.z = object.position.z * 2;
+        object.lookAt(vector2);
+        this.targets.helix.push(object);
       }
       // grid
       for (var i = 0; i < this.objects.length; i++) {
@@ -693,52 +716,200 @@ This method does not support objects having non-uniformly-scaled parent(s). */
         object.position.z = Math.floor(i / 25) * 1000 - 2000;
         this.targets.grid.push(object);
       }
-      //
+      // 3d渲染css
       this.renderer = new CSS3DRenderer();
       this.renderer.setSize(window.innerWidth, window.innerHeight);
-      document.getElementById("container").appendChild(this.renderer.domElement);
-      //
-      this.controls = new TrackballControls(camera, renderer.domElement);
-      controls.minDistance = 500;
-      controls.maxDistance = 6000;
-      controls.addEventListener("change", render);
+      document
+        .getElementById("container")
+        .appendChild(this.renderer.domElement);
+      // 轨迹控制
+      // this.controls = new TrackballControls(
+      //   this.camera,
+      //   this.renderer.domElement
+      // );
+      // this.controls.minDistance = 500;
+      // this.controls.maxDistance = 6000;
+      // this.controls.addEventListener("change", this.render);
       var button = document.getElementById("table");
       button.addEventListener(
         "click",
-        function() {
-          transform(targets.table, 2000);
+        () => {
+          _this.transform(_this.targets.table, 2000);
         },
         false
       );
       var button = document.getElementById("sphere");
       button.addEventListener(
         "click",
-        function() {
-          transform(targets.sphere, 2000);
+        () => {
+          _this.transform(_this.targets.sphere, 2000);
         },
         false
       );
       var button = document.getElementById("helix");
       button.addEventListener(
         "click",
-        function() {
-          transform(targets.helix, 2000);
+        () => {
+          _this.transform(_this.targets.helix, 2000);
         },
         false
       );
       var button = document.getElementById("grid");
       button.addEventListener(
         "click",
-        function() {
-          transform(targets.grid, 2000);
+        () => {
+          _this.transform(_this.targets.grid, 2000);
         },
         false
       );
-      transform(targets.table, 2000);
+      this.transform(this.targets.table, 2000);
       //
-      window.addEventListener("resize", onWindowResize, false);
-    }
+      window.addEventListener("resize", this.onWindowResize, false);
+    },
+    transform(targets, duration) {
+      TWEEN.removeAll();
+      for (let i = 0; i < this.objects.length; i++) {
+        const object = this.objects[i],
+          target = targets[i];
+        new TWEEN.Tween(object.position)
+          .to(
+            {
+              x: target.position.x,
+              y: target.position.y,
+              z: target.position.z
+            },
+            Math.random() * duration + duration
+          )
+          // 指数
+          .easing(TWEEN.Easing.Exponential.InOut)
+          .start();
+        new TWEEN.Tween(object.rotation)
+          .to(
+            {
+              x: target.rotation.x,
+              y: target.rotation.y,
+              z: target.rotation.z
+            },
+            Math.random() * duration + duration
+          )
+          .easing(TWEEN.Easing.Exponential.InOut)
+          .start();
+      }
+
+      new TWEEN.Tween(this)
+        .to({}, duration * 2)
+        .onUpdate(this.render)
+        .start();
+      // this.render()
+    },
+    onWindowResize() {
+      // 方向
+      this.camera.aspect = window.innerWidth / window.innerHeight;
+      // 矩阵
+      this.camera.updateProjectionMatrix();
+      this.renderer.setSize(window.innerWidth, window.innerHeight);
+      this.render();
+    },
+    animate() {
+      requestAnimationFrame(this.animate);
+      TWEEN.update();
+      // this.controls.update();
+    },
+    render() {
+      this.renderer.render(this.scene, this.camera);
+    },
+
+    // setFromSphericalCoords(radius, phi, theta) {
+    //   var sinPhiRadius = Math.sin(phi) * radius;
+
+    //   this.x = sinPhiRadius * Math.sin(theta);
+    //   this.y = Math.cos(phi) * radius;
+    //   this.z = sinPhiRadius * Math.cos(theta);
+
+    //   return this;
+    // },
+
+    // setFromCylindricalCoords: function(radius, theta, y) {
+    //   this.x = radius * Math.sin(theta);
+    //   this.y = y;
+    //   this.z = radius * Math.cos(theta);
+
+    //   return this;
+    // }
   }
 };
 </script>
-<style></style>
+<style>
+a {
+  color: #8ff;
+}
+
+#menu {
+  position: absolute;
+  bottom: 20px;
+  width: 100%;
+  text-align: center;
+}
+
+.element {
+  width: 120px;
+  height: 160px;
+  box-shadow: 0px 0px 12px rgba(0, 255, 255, 0.5);
+  border: 1px solid rgba(127, 255, 255, 0.25);
+  font-family: Helvetica, sans-serif;
+  text-align: center;
+  line-height: normal;
+  cursor: default;
+}
+
+.element:hover {
+  box-shadow: 0px 0px 12px rgba(0, 255, 255, 0.75);
+  border: 1px solid rgba(127, 255, 255, 0.75);
+}
+
+.element .number {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 12px;
+  color: rgba(127, 255, 255, 0.75);
+}
+
+.element .symbol {
+  position: absolute;
+  top: 40px;
+  left: 0px;
+  right: 0px;
+  font-size: 60px;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.75);
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.95);
+}
+
+.element .details {
+  position: absolute;
+  bottom: 15px;
+  left: 0px;
+  right: 0px;
+  font-size: 12px;
+  color: rgba(127, 255, 255, 0.75);
+}
+
+button {
+  color: rgba(127, 255, 255, 0.75);
+  background: transparent;
+  outline: 1px solid rgba(127, 255, 255, 0.75);
+  border: 0px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: rgba(0, 255, 255, 0.5);
+}
+
+button:active {
+  color: #000000;
+  background-color: rgba(0, 255, 255, 0.75);
+}
+</style>

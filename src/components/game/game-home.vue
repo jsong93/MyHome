@@ -1,120 +1,277 @@
 <template>
-  <div>
-    <div><canvas id="canvas" height="600"></canvas></div>
-    <div><canvas id="canvas1"></canvas></div>
-  </div>
+  <section>
+    <div class="game-content">
+      <div class="game-table">
+        <div class="game-head">start</div>
+        <div calss="game-panel"></div>
+        <div class="game-dashboard"></div>
+      </div>
+    </div>
+  </section>
 </template>
 
 <script>
-import G3D from "g3d";
+import * as d3 from "d3";
 export default {
   data() {
     return {
-      engine: null
+      tetris_tr: null,
+      level: 0,
+      newBlock: [
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      ],
+      grid: [
+        // [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        // [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        // [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        // [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      ]
     };
   },
   created() {},
   mounted() {
-    document.body.onload = () => {
-      this.init();
-    };
+    this.newTetris();
+    this.tetris_tr = d3
+      .select(".game-dashboard")
+      // .append("div")
+      .selectAll("div")
+      .data(this.newBlock.concat(this.grid))
+      .enter()
+      .append("div")
+      .classed("game-dashboard-tr", true)
+      .selectAll("div")
+      .data(d => d)
+      .enter()
+      .append("div")
+      .classed("game-dashboard-td", true)
+      .style("width", "1rem")
+      .style("height", "1rem")
+      .style("background-color", d => {
+        return d > 0 ? "steelblue" : "#fff";
+      });
+    // .text(d => d);
+
+    // const data = [[1, 2], [3, 4]];
+    // d3.selectAll("p")
+    //   // .append("div")
+    //   // .selectAll("div")
+    //   .data(data)
+    //   .enter()
+    //   .append("p")
+    //   .classed("a", true)
+    //   .selectAll("div")
+    //   .data(d => d)
+    //   .enter()
+    //   .append("div")
+    //   .classed("b", true)
+    //   .text(d => d);
+    setInterval(() => {
+      this.newTetris();
+      // this.move();
+      this.draw();
+    }, 1000);
+    // d3.select(".game-dashboard")
+    //   .selectAll("div")
+    //   .data(data)
+    //   .enter()
+    //   .append("div")
+    //   .style("width", "30px")
+    //   .style("height", "30px")
+    //   .style("background-color", d => {
+    //     return d > 0 ? "steelblue" : "#fff";
+    //   });
+    // .text(d => d);
+    // const xScale = d3.time.scale().range;
+
+    // console.log(d3);
   },
+  destroyed() {},
   methods: {
-    init() {
-      const canvas = document.getElementById("canvas"),
-        clientWidth = document.documentElement.clientWidth,
-        clientHeight = document.documentElement.clientHeight;
-      // 该 Window 属性 devicePixelRatio 能够返回当前显示设备的物理像素分辨率与 CSS 像素分辨率的比率
-      canvas.width = clientWidth * devicePixelRatio;
-      canvas.height = clientHeight * devicePixelRatio;
-      canvas.style.width = clientWidth + "px";
-      canvas.style.height = clientHeight + "px";
-      const scene = this.main(canvas);
-
-      this.controlRotateCamera(
-        canvas,
-        G3D.Engine.instance.currentScene.activeCamera
-      );
-    },
-    main(canvas) {
-      // 引擎
-      this.engine = this.engine ? this.engine : new G3D.Engine(canvas);
-      // 场景
-      const scene = new G3D.Scene(this.engine),
-        //透视相机
-        camera = new G3D.RotatePerspectiveCamera(scene);
-
-      camera.alpha = 45;
-      camera.beta = 30;
-      camera.redius = 20;
-
-      // 平行光
-      const light1 = new G3D.DirectionalLight(scene);
-      // 颜色
-      light1.color = { r: 255, g: 200, b: 200 };
-      // 方向
-      light1.direction = { x: 1, y: 0, z: 1 };
-      // 亮度
-      light1.intensity = 0.8;
-      // 通过不同方式创建各种网格体的工厂函数集合 每一个方法返回一个创建好的网格体 scene ,x,y
-      const m1 = G3D.MeshBuilder.createPlane(scene, 60, 4);
-      m1.position.z = -4;
-      const m2 = G3D.MeshBuilder.createSphere(scene, 1);
-      m2.position.z = 4;
-      function render() {
-        scene.render();
-        requestAnimationFrame(render);
-      }
-      render();
-    },
-    controlRotateCamera(canvas, camera) {
-      function clamp(min, max, v) {
-        return v < min ? min : v > max ? max : v;
-      }
-      var isDragging = false,
-        lx = null,
-        ly = null,
-        r = 0,
-        radius = camera.radius;
-      function start() {
-        isDragging = true;
-      }
-      function end() {
-        isDragging = false;
-        lx = ly = null;
-      }
-      function move(x, y) {
-        if (!isDragging) {
-          return;
+    // 生成新方块
+    newTetris() {
+      let a = 3,
+        i = 3,
+        j = 4,
+        m = 0,
+        n = 0;
+      this.newBlock = [
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      ];
+      this.newBlock[i][j] = 1;
+      // 一行一行画 判断位置 凸画的不好 从底下向上画
+      while (a > 0) {
+        switch (Math.round(Math.random())) {
+          // 同行
+          case 0:
+            // 一行大于两个
+            if (this.newBlock[i][j + 1] + this.newBlock[i][j - 1] > 0) {
+              //   if (a < 2) {
+              //     if (this.newBlock[i][j + 1] + this.newBlock[i][j - 1] > 1) {
+              //       this.newBlock[i][
+              //         this.newBlock[i][j - 1] > 0 ? j - 2 : ++j
+              //       ] = 1;
+              //     } else {
+              //       // this.newBlock[--i][
+              //       //   this.newBlock[i][j - 1] > 0 ? j - 2 : ++j
+              //       // ] = 1;
+              //       this.newBlock[i][j - 1] > 0
+              //         ? (this.newBlock[--i][--j] = 1)
+              //         : (this.newBlock[i][++j] = 1);
+              //     }
+              //   } else {
+              if (m < 2) {
+                this.newBlock[i][this.newBlock[i][j - 1] > 0 ? ++j : --j] = 1;
+              } else {
+                this.newBlock[--i][this.newBlock[i][j - 1] > 0 ? --j : ++j] = 1;
+              }
+              // if (this.newBlock[i][j - 1] > 0) {
+              //   debugger
+              //   j -= 2;
+              // } else {
+              //   debugger
+              //   j += 2;
+              // }
+              // this.newBlock[i][j] = 1;
+              // }
+            } else {
+              switch (Math.round(Math.random())) {
+                case 0:
+                  this.newBlock[i][++j] = 1;
+                  break;
+                case 1:
+                  this.newBlock[i][--j] = 1;
+                  break;
+                default:
+                  this.newBlock[i][++j] = 1;
+                  break;
+              }
+            }
+            m++;
+            console.log(m);
+            break;
+          // 换行
+          case 1:
+            if (n < 2) {
+              this.newBlock[--i][j] = 1;
+            } else {
+              this.newBlock[--i][++j] = 1;
+            }
+            n++;
+            break;
+          default:
+            if (n < 2) {
+              this.newBlock[--i][j] = 1;
+            } else {
+              this.newBlock[++i][++j] = 1;
+            }
+            n++;
+            break;
         }
-        if (lx === null) {
-          lx = x;
-          ly = y;
-        } else {
-          camera.alpha += (x - lx) / 5;
-          camera.beta = clamp(-90, 90, camera.beta - (y - ly) / 5);
-          lx = x;
-          ly = y;
-        }
+        a--;
       }
-      function wheel(deltaY) {
-        r += deltaY / 100;
-        r = clamp(-1, 1, r);
-        camera.radius = radius * (1 + r * 0.6);
-      }
-      canvas.addEventListener("mousedown", start);
-      canvas.addEventListener("mouseup", end);
-      canvas.addEventListener("mousemove", function(e) {
-        move(e.offsetX, e.offsetY);
-      });
-      canvas.addEventListener("touchstart", start);
-      canvas.addEventListener("touchend", end);
-      canvas.addEventListener("touchmove", function(e) {
-        move(e.touches[0].screenX, e.touches[0].screenY);
-      });
+      console.log(m, n);
     },
+    move() {
+      // let i = 0;
+      // while (i < 10) {
+      //   for (let j = 3; j > 0; j--) {
+      //     for (let m = 0; m < 10; m++) {
+      //       if (this.newBlock[j][m] + this.grid[i][m] > 1) {
+      //         break;
+      //       }
+      //       if (m > 8) {
+      //         this.grid[i] = this.newBlock[j];
+      //         break;
+      //       }
+      //     }
+      //   }
+      //   i++;
+      // }
+      // for (let i = 3; i < this.grid.length; i++) {
+      //   if (i + 1 < this.grid.length) {
+      //     for (let j = 0; j < this.grid[i].length; j++) {
+      //       if (this.grid[i][j] + this.grid[i + 1][j] > 1) {
+      //       }
+      //     }
+      //   }
+      // }
+    },
+    draw() {
+      d3.selectAll(".game-dashboard-tr")
+        // .data(this.newBlock)
+        .data(this.newBlock.concat(this.grid))
+        .selectAll(".game-dashboard-td")
+        .data(d => d)
+        .style("background-color", d => {
+          return d > 0 ? "steelblue" : "#fff";
+        });
+    }
   }
 };
 </script>
 
-<style></style>
+<style>
+.game-content {
+  margin: 0 auto;
+  width: 25rem;
+  padding-top: 4.5rem;
+}
+.game-table {
+  display: grid;
+  grid-template-columns: 4fr 1fr;
+  grid-template-rows: 1fr 5fr;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  box-shadow: 10px 10px 8px #aaa, -10px 10px 8px #aaa;
+  grid-template-areas:
+    "head ."
+    "dashboard panel";
+  grid-auto-flow: row;
+}
+.game-head {
+  border-bottom: 1px solid #ccc;
+  grid-area: head;
+}
+.game-panel {
+  border-bottom: 1px solid #ccc;
+  grid-area: panel;
+}
+.game-dashboard {
+  border: 1 solid #ccc;
+  grid-area: dashboard;
+}
+.game-dashboard {
+  width: 25rem;
+}
+.game-dashboard div {
+  line-height: 0;
+}
+.game-dashboard div div {
+  font: 10px sans-serif;
+  display: inline-block;
+  background-color: steelblue;
+  text-align: right;
+  padding: 3px;
+  /* margin: 1px; */
+  color: white;
+  border: 1px solid #eee;
+}
+</style>
